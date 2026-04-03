@@ -2,21 +2,25 @@
 
 import { useState, FormEvent } from "react";
 
-interface DocumentChunk {
+interface Document {
+  uri?: string;
+  title?: string;
+}
+
+interface SearchResult {
   content?: string;
   parent?: string;
-  title?: string;
-  url?: string;
+  document?: Document;
 }
 
 interface SearchResponse {
-  documentChunks?: DocumentChunk[];
+  results?: SearchResult[];
   error?: string;
 }
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<DocumentChunk[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searched, setSearched] = useState(false);
@@ -39,7 +43,7 @@ export default function Home() {
         return;
       }
 
-      setResults(data.documentChunks || []);
+      setResults(data.results || []);
     } catch {
       setError("Failed to connect to the server");
     } finally {
@@ -47,19 +51,12 @@ export default function Home() {
     }
   }
 
-  function getDocUrl(chunk: DocumentChunk): string | null {
-    if (chunk.url) return chunk.url;
-    if (chunk.parent) {
-      const id = chunk.parent.replace("documents/", "");
-      return `https://cloud.google.com/docs/${id}`;
-    }
-    return null;
+  function getDocUrl(result: SearchResult): string | null {
+    return result.document?.uri || null;
   }
 
-  function getTitle(chunk: DocumentChunk): string {
-    if (chunk.title) return chunk.title;
-    if (chunk.parent) return chunk.parent.replace("documents/", "").replaceAll("/", " > ");
-    return "Documentation";
+  function getTitle(result: SearchResult): string {
+    return result.document?.title || "Documentation";
   }
 
   return (

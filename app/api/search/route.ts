@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE = "https://developers.google.com/knowledge/v1alpha";
+const API_BASE = "https://developerknowledge.googleapis.com/v1alpha";
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("query");
@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await res.json();
+    console.log("API response keys:", Object.keys(data));
     return NextResponse.json(data);
   } catch (err) {
     console.error("Fetch error:", err);
